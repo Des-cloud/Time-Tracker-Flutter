@@ -9,28 +9,28 @@ class EmailSignInForm extends StatefulWidget {
 }
 
 class _EmailSignInFormState extends State<EmailSignInForm> {
+
+  final _emailController= TextEditingController();
+  final _passwordController= TextEditingController();
+
+  LoginOrRegister _type= LoginOrRegister.login;
+  void _submit(){
+    print("I clicked");
+  }
+
+  void _toggleLoginOrRegister(){
+    setState(() {
+      _type= _type == LoginOrRegister.login? LoginOrRegister.register: LoginOrRegister.login;
+      print(_type);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    final _emailController= TextEditingController();
-    final _passwordController= TextEditingController();
-
-    LoginOrRegister _type= LoginOrRegister.login;
-
-    void _submit(){
-
-    }
-
-    void _toggleLoginOrRegister(){
-      setState(() {
-        print("You are a jerk");
-        _type= _type == LoginOrRegister.login? LoginOrRegister.register: LoginOrRegister.login;
-      });
-    }
-
     List<Widget> _buildChildren(){
       final _mainText= _type == LoginOrRegister.login?"Sign In":"Create an account";
-      final _secondaryText= _type ==LoginOrRegister.login?"Don't have an account? Register":"Or Login here";
+      final _secondaryText= _type ==LoginOrRegister.login?"Don't have an account? Register":"Have an account? Login here";
       return [
         TextField(
           decoration: InputDecoration(
@@ -53,7 +53,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
           height: 15.0,
         ),
         SizedBox(
-          width: 150.0,
+          // width: 150.0,
           child: LoginFormButton(
             color: Colors.indigo,
             onPressed: _submit,
@@ -78,7 +78,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        // crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: _buildChildren(),
       ),
     );
