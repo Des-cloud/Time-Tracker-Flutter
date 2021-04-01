@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:time_tracker/app/login/email_loginFormButton.dart';
 import 'package:time_tracker/app/login/validator.dart';
 import 'package:time_tracker/services/Authentication.dart';
+import 'package:time_tracker/widgets/alertDialog.dart';
 
 enum LoginOrRegister {login, register}
 
@@ -41,7 +44,13 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       }
       Navigator.pop(context);
     }catch(e){
-      print(e.toString());
+      if(Platform.isIOS)
+      {
+        //Do for IOS
+      }
+      else {
+        showAlertDialog(context, title: "Sign in Failed", content: e.toString(), actionText: "Ok");
+      }
     }finally{
       setState(() {
         _isLoading= false;
@@ -116,7 +125,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   }
 
   TextField _buildPasswordTextField() {
-    bool passwordValid= _submitted && widget.passwordValidator.isValid(_password);
+    bool passwordValid= _submitted && !widget.passwordValidator.isValid(_password);
     return TextField(
         controller: _passwordController,
         decoration: InputDecoration(
@@ -133,7 +142,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   }
 
   TextField _buildEmailTextField() {
-    bool emailValid= _submitted && widget.emailValidator.isValid(_email);
+    bool emailValid= _submitted && !widget.emailValidator.isValid(_email);
     return TextField(
         decoration: InputDecoration(
           labelText: "Email",
