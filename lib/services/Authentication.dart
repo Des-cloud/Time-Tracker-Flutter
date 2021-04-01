@@ -8,6 +8,8 @@ abstract class AuthBaseClass{
   Future<User> loginAnon();
   Future<User> signInWithGoogle();
   Future<User> signInWithFacebook();
+  Future<User> createUserWithEmail(String email, String password);
+  Future<User> signInWithEmail(String email, String password);
   Future<void> logout();
 }
 
@@ -67,6 +69,19 @@ class Authentication implements AuthBaseClass{
         throw UnimplementedError("Not implemented");
     }
 
+  }
+
+  @override
+  Future<User> signInWithEmail(String email, String password) async{
+    final userCredential= await _auth.signInWithCredential(
+        EmailAuthProvider.credential(email: email, password: password));
+    return userCredential.user;
+  }
+
+  @override
+  Future<User> createUserWithEmail(String email, String password) async{
+    final userCredential= await _auth.createUserWithEmailAndPassword(email: email, password: password);
+    return userCredential.user;
   }
 
   @override

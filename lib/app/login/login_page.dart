@@ -8,13 +8,11 @@ import 'package:time_tracker/widgets/customElevatedButton.dart';
 class LoginPage extends StatelessWidget {
 
   const LoginPage({Key key, @required this.auth}) : super(key: key);
-  // final void Function(User) onLogin;
   final AuthBaseClass auth;
 
   Future<void> _signInAnonymously() async {
     try {
-      final user = await auth.loginAnon();
-      // onLogin(user);
+      await auth.loginAnon();
     } catch (e){
       print(e.toString());
     }
@@ -22,8 +20,7 @@ class LoginPage extends StatelessWidget {
 
   Future<void> _signInWithGoogle() async {
     try {
-      final user = await auth.signInWithGoogle();
-      // onLogin(user);
+      await auth.signInWithGoogle();
     } catch (e){
       print(e.toString());
     }
@@ -31,8 +28,7 @@ class LoginPage extends StatelessWidget {
 
   Future<void> _signInFacebook() async {
     try {
-      final user = await auth.signInWithFacebook();
-      // onLogin(user);
+      await auth.signInWithFacebook();
     } catch (e){
       print(e.toString());
     }
@@ -41,7 +37,7 @@ class LoginPage extends StatelessWidget {
   void _signInWithEmail(BuildContext context){
     Navigator.push(context, CupertinoPageRoute(
         fullscreenDialog: false,
-        builder: (context)=> EmailSignInPage(),
+        builder: (context)=> EmailSignInPage(auth: auth,),
     ));
   }
 
