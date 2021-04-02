@@ -4,18 +4,25 @@ import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:time_tracker/app/login/emailLoginPage.dart';
 import 'package:time_tracker/app/login/loginButton.dart';
+import 'package:time_tracker/app/login/sign_in_bloc.dart';
 import 'package:time_tracker/services/Authentication.dart';
 import 'package:time_tracker/widgets/customElevatedButton.dart';
 import 'package:time_tracker/widgets/showExceptionAlertDialog.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatelessWidget {
+  LoginPage({Key key, @required this.bloc}):super(key: key);
+  final SignInBloc bloc;
 
-  @override
-  _LoginPageState createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  bool isLoading= false;
+  static Widget create(BuildContext context){
+    final auth= Provider.of<AuthBaseClass>(context, listen: false);
+    return Provider<SignInBloc>(
+      create: (_)=>SignInBloc(auth: auth),
+      dispose: (_,bloc)=>bloc.dispose(),
+      child: Consumer<SignInBloc>(
+          builder: (_, bloc, __)=>LoginPage(bloc: bloc),
+      ),
+    );
+  }
 
   void _showSignInError (BuildContext context, Exception exception){
     if(exception is FirebaseException && exception.code== "ERROR_ABORTED_BY_USER")
@@ -28,41 +35,25 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _signInAnonymously(BuildContext context) async {
     try {
-      setState(() {isLoading= true;});
-      final auth= Provider.of<AuthBaseClass>(context, listen: false);
-      await auth.loginAnon();
+      await bloc.loginAnon();
     } on Exception catch (e){
       _showSignInError(context, e);
-    }finally{setState(() {
-      isLoading= false;
-    });}
+    }
   }
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
-      setState(() {isLoading= true;});
-      final auth= Provider.of<AuthBaseClass>(context, listen: false);
-      await auth.signInWithGoogle();
+      await bloc.signInWithGoogle();
     } on Exception catch (e){
       _showSignInError(context, e);
-    }finally{
-      setState(() {
-        isLoading= false;
-      });
     }
   }
 
   Future<void> _signInFacebook(BuildContext context) async {
     try {
-      setState(() {isLoading= true;});
-      final auth= Provider.of<AuthBaseClass>(context, listen: false);
-      await auth.signInWithFacebook();
+      await bloc.signInWithFacebook();
     }on Exception catch (e){
       _showSignInError(context, e);
-    }finally{
-      setState(() {
-        isLoading= false;
-      });
     }
   }
 
@@ -75,26 +66,31 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Time Tracker"),
         centerTitle: true,
         elevation: 2.0,
       ),
-      body: _buildBody(context),
+      body: StreamBuilder<bool>(
+        stream: bloc.isLoadingStream,
+        initialData: false,
+        builder: (context, snapshot) {
+          return _buildBody(context, snapshot.data);
+        }
+      ),
       backgroundColor: Colors.grey[200],
     );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, bool isLoading) {
     return Padding(
       padding: EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          SizedBox(height:50.0, child: _header()),
+          SizedBox(height:50.0, child: _header(isLoading)),
           SizedBox(height: 40.0,),
 
           CustomElevatedButton(
@@ -189,7 +185,8 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _header(){
+  Widget _header(bool isLoading){
+    print(isLoading);
     if(isLoading){
       return Center(
         child: CircularProgressIndicator(
