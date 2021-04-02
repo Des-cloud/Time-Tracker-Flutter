@@ -1,49 +1,81 @@
-import 'package:flutter/cupertino.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
+import 'package:provider/provider.dart';
 import 'package:time_tracker/app/login/emailLoginPage.dart';
 import 'package:time_tracker/app/login/loginButton.dart';
 import 'package:time_tracker/services/Authentication.dart';
 import 'package:time_tracker/widgets/customElevatedButton.dart';
+import 'package:time_tracker/widgets/showExceptionAlertDialog.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
 
-  const LoginPage({Key key, @required this.auth}) : super(key: key);
-  final AuthBaseClass auth;
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
 
-  Future<void> _signInAnonymously() async {
+class _LoginPageState extends State<LoginPage> {
+  bool isLoading= false;
+
+  void _showSignInError (BuildContext context, Exception exception){
+    if(exception is FirebaseException && exception.code== "ERROR_ABORTED_BY_USER")
+      {return;}
+    else{
+      showExceptionAlertDialog(
+          context, title: "Sign in Failed", exception: exception);
+    }
+  }
+
+  Future<void> _signInAnonymously(BuildContext context) async {
     try {
+      setState(() {isLoading= true;});
+      final auth= Provider.of<AuthBaseClass>(context, listen: false);
       await auth.loginAnon();
-    } catch (e){
-      print(e.toString());
-    }
+    } on Exception catch (e){
+      _showSignInError(context, e);
+    }finally{setState(() {
+      isLoading= false;
+    });}
   }
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> _signInWithGoogle(BuildContext context) async {
     try {
+      setState(() {isLoading= true;});
+      final auth= Provider.of<AuthBaseClass>(context, listen: false);
       await auth.signInWithGoogle();
-    } catch (e){
-      print(e.toString());
+    } on Exception catch (e){
+      _showSignInError(context, e);
+    }finally{
+      setState(() {
+        isLoading= false;
+      });
     }
   }
 
-  Future<void> _signInFacebook() async {
+  Future<void> _signInFacebook(BuildContext context) async {
     try {
+      setState(() {isLoading= true;});
+      final auth= Provider.of<AuthBaseClass>(context, listen: false);
       await auth.signInWithFacebook();
-    } catch (e){
-      print(e.toString());
+    }on Exception catch (e){
+      _showSignInError(context, e);
+    }finally{
+      setState(() {
+        isLoading= false;
+      });
     }
   }
 
   void _signInWithEmail(BuildContext context){
-    Navigator.push(context, CupertinoPageRoute(
+    Navigator.push(context, MaterialPageRoute(
         fullscreenDialog: false,
-        builder: (context)=> EmailSignInPage(auth: auth,),
+        builder: (context)=> EmailSignInPage(),
     ));
   }
 
-
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Time Tracker"),
@@ -62,15 +94,7 @@ class LoginPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text(
-            "Login",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 35.0,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 1.5,
-            ),
-          ),
+          SizedBox(height:50.0, child: _header()),
           SizedBox(height: 40.0,),
 
           CustomElevatedButton(
@@ -88,7 +112,7 @@ class LoginPage extends StatelessWidget {
               ],
             ),
             primary: Colors.white,
-            onPressed: _signInWithGoogle,
+            onPressed: isLoading?null:()=>_signInWithGoogle(context),
             borderRadius: 10.0,
           ),
 
@@ -109,7 +133,7 @@ class LoginPage extends StatelessWidget {
               ],
             ),
             primary: Color(0xFF334D92),
-            onPressed: _signInFacebook,
+            onPressed: isLoading?null:()=>_signInFacebook(context),
             borderRadius: 10.0,
           ),
 
@@ -134,7 +158,7 @@ class LoginPage extends StatelessWidget {
               ],
             ),
             primary: Colors.teal[700],
-            onPressed: ()=>_signInWithEmail(context),
+            onPressed: isLoading?null:()=>_signInWithEmail(context),
             borderRadius: 10.0,
           ),
 
@@ -156,7 +180,7 @@ class LoginPage extends StatelessWidget {
             text: "Sign in Anonymously",
             textColor: Colors.black87,
             color: Colors.lime[200],
-            onPressed: _signInAnonymously,
+            onPressed: isLoading?null:()=>_signInAnonymously(context),
             borderRadius: 10.0,
             height: 50.0,
           ),
@@ -164,9 +188,25 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
-}
 
-void _signEmail(){
-  //To sign in Email
-  print("Email clicked");
+  Widget _header(){
+    if(isLoading){
+      return Center(
+        child: CircularProgressIndicator(
+          value: null,
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.indigo),
+          strokeWidth: 5.0,
+        ),
+      );
+    }
+    return Text(
+      "Login",
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 35.0,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 1.5,
+      ),
+    );
+  }
 }

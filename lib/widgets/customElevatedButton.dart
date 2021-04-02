@@ -18,6 +18,7 @@ class CustomElevatedButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           primary: primary,
+          onSurface: primary,
           elevation: 5.0,
           shape: RoundedRectangleBorder(
             side: BorderSide(

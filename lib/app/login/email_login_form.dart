@@ -1,16 +1,15 @@
-import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:time_tracker/app/login/email_loginFormButton.dart';
 import 'package:time_tracker/app/login/validator.dart';
 import 'package:time_tracker/services/Authentication.dart';
-import 'package:time_tracker/widgets/alertDialog.dart';
+import 'package:time_tracker/widgets/showExceptionAlertDialog.dart';
 
 enum LoginOrRegister {login, register}
 
 class EmailSignInForm extends StatefulWidget with EmailAndPasswordValidator{
-  EmailSignInForm({@required this.auth});
-  final AuthBaseClass auth;
 
   @override
   _EmailSignInFormState createState() => _EmailSignInFormState();
@@ -31,26 +30,31 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   bool _submitted= false;
   bool _isLoading= false;
 
+  //Remove widgets correctly
+  @override
+  void dispose(){
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   void _submit() async{
     setState(() {
       _submitted= true;
       _isLoading= true;
     });
     try {
+      final auth= Provider.of<AuthBaseClass>(context, listen: false);
       if (_type == LoginOrRegister.login) {
-        await widget.auth.signInWithEmail(_email, _password);
+        await auth.signInWithEmail(_email, _password);
       } else {
-        await widget.auth.createUserWithEmail(_email, _password);
+        await auth.createUserWithEmail(_email, _password);
       }
       Navigator.pop(context);
-    }catch(e){
-      if(Platform.isIOS)
-      {
-        //Do for IOS
-      }
-      else {
-        showAlertDialog(context, title: "Sign in Failed", content: e.toString(), actionText: "Ok");
-      }
+    }on FirebaseAuthException catch(e){
+        showExceptionAlertDialog(context, title: "Sign in Failed", exception: e);
     }finally{
       setState(() {
         _isLoading= false;

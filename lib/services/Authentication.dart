@@ -45,7 +45,7 @@ class Authentication implements AuthBaseClass{
         throw FirebaseAuthException(message: "Missing google id token", code: "ERROR_MISSING_GOOGLE_ID_TOKEN");
       }
     }else{
-      throw FirebaseAuthException(message: "Sign in not permitted. Sign in returned null", code: "ERROR_ABORTED_LOGIN");
+      throw FirebaseAuthException(message: "Sign in not permitted. Sign in returned null", code: "ERROR_ABORTED_BY_USER");
     }
   }
 
