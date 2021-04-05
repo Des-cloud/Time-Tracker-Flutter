@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:time_tracker/app/login/email_signin_model.dart';
+import 'package:time_tracker/app/login/email_sign_in_model.dart';
 import 'package:time_tracker/services/Authentication.dart';
 
 class EmailSignInBloc{
   EmailSignInBloc({@required this.auth});
   final AuthBaseClass auth;
 
-  final StreamController<EmailSignInModel> _modelController= StreamController();
+  final StreamController<EmailSignInModel> _modelController=
+      StreamController<EmailSignInModel>();
   Stream<EmailSignInModel> get modelStream => _modelController.stream;
-  EmailSignInModel _model= EmailSignInModel();
+  EmailSignInModel model= EmailSignInModel();
 
   void dispose(){
     _modelController.close();
@@ -18,10 +19,10 @@ class EmailSignInBloc{
   Future<void> submit() async{
     updateWith(submitted: true, isLoading: true);
     try {
-      if (_model.type == LoginOrRegister.login) {
-        await auth.signInWithEmail(_model.email, _model.password);
+      if (model.type == LoginOrRegister.login) {
+        await auth.signInWithEmail(model.email, model.password);
       } else {
-        await auth.createUserWithEmail(_model.email, _model.password);
+        await auth.createUserWithEmail(model.email, model.password);
       }
     }catch(e){
       updateWith(isLoading: false);
@@ -29,16 +30,26 @@ class EmailSignInBloc{
     }
   }
 
+  void toggleLoginOrRegister(){
+    final type= model.type== LoginOrRegister.login? LoginOrRegister.register: LoginOrRegister.login;
+    updateWith(
+        email: "",
+        password: "",
+        isLoading: false,
+        submitted: false,
+        type: type,
+    );
+  }
+
   void updateWith({String email, String password, LoginOrRegister type, bool isLoading, bool submitted})
   {
-    _model.copyWith(
+    model.copyWith(
       email: email,
       password: password,
       type: type,
       isLoading: isLoading,
       submitted: submitted
     );
-    _modelController.add(_model);
+    _modelController.add(model);
   }
-
 }
