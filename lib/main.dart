@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
-import 'package:time_tracker/app/login/landingPage.dart';
+import 'file:///C:/Users/desmo/Desktop/Projects/Flutter/time_tracker/lib/app/landingPage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:time_tracker/services/Authentication.dart';
 
