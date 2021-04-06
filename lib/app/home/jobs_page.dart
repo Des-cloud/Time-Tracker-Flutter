@@ -1,10 +1,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:time_tracker/app/home/jobs/add_edit_job_page.dart';
+import 'package:time_tracker/app/home/jobs/job.dart';
+import 'package:time_tracker/app/home/jobs/job_listView.dart';
 import 'package:time_tracker/services/Authentication.dart';
 import 'package:time_tracker/widgets/alertDialog.dart';
 import 'package:time_tracker/services/database.dart';
-import 'package:time_tracker/app/home/models/job.dart';
 
 class JobsPage extends StatelessWidget {
 
@@ -24,16 +26,11 @@ class JobsPage extends StatelessWidget {
       _logout(context);
     }
   }
-  Future<void> _createJob(BuildContext context) async{
-    final database = Provider.of<Database>(context, listen: false);
-    await database.createJob(Job(name: "Blogging", ratePerHour: 50), context);
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 60.0,
         title: Text("Jobs"),
         centerTitle: true,
         elevation: 2.0,
@@ -54,7 +51,7 @@ class JobsPage extends StatelessWidget {
       ),
       body: _buildBody(context),
       floatingActionButton: FloatingActionButton(
-        onPressed: ()=>_createJob(context),
+        onPressed: ()=>AddOrEditJobPage.show(context),
         child: Icon(Icons.add),
       ),
     );
@@ -68,7 +65,10 @@ class JobsPage extends StatelessWidget {
       builder: (context, snapshot){
         if(snapshot.hasData){
           final jobs= snapshot.data;
-          final children= jobs.map((job)=> Text(job.name)).toList();
+          final children= jobs.map((job)=> JobListView(
+            job: job,
+            onTap: ()=>AddOrEditJobPage.show(context, job: job),
+          )).toList();
           return ListView(
             children: children,
           );
