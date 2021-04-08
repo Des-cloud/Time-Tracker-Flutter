@@ -10,7 +10,8 @@ class FirestoreService{
 
   Stream<List<T>> collectionStream<T>({
     @required String path,
-    @required T Function(Map<String, dynamic> data, String jobID) builder}){
+    @required T Function(Map<String, dynamic> data, String jobID) builder})
+  {
     final reference= FirebaseFirestore.instance.collection(path);
     final snapshots= reference.snapshots();
     return snapshots.map(
@@ -20,13 +21,24 @@ class FirestoreService{
     );
   }
 
-  Future<void> setData(BuildContext context, {String path, Map<String, dynamic> data}) async{
+  Future<void> setData(BuildContext context, {@required String path,
+    @required Map<String, dynamic> data})
+  async{
     final reference= FirebaseFirestore.instance.doc(path);
     try {
       await reference.set(data);
-    }on FirebaseException catch(e, s){
-      print(s);
+    }on FirebaseException catch(e){
       showExceptionAlertDialog(context, title: "Operation Failed", exception: e);
     }
   }
+
+  Future<void> deleteData(BuildContext context, {@required String path}) async{
+    final reference= FirebaseFirestore.instance.doc(path);
+    try {
+      await reference.delete();
+    }on FirebaseException catch(e){
+      showExceptionAlertDialog(context, title: "Operation Failed", exception: e);
+    }
+  }
+
 }

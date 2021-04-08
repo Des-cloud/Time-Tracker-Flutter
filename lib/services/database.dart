@@ -8,6 +8,7 @@ import 'package:time_tracker/widgets/alertDialog.dart';
 
 abstract class Database {
   Future<void> setJob(Job job, BuildContext context);
+  Future<void> deleteJob(BuildContext context, Job job);
   Stream<List<Job>> jobStream();
   Future<bool> checkExisting(BuildContext context, String name, bool flag);
 }
@@ -19,6 +20,7 @@ class FirestoreDatabase implements Database {
 
   final service= FirestoreService.instance;
 
+  @override
   Future<void> setJob(Job job, BuildContext context) async{
     service.setData(
       context,
@@ -27,6 +29,12 @@ class FirestoreDatabase implements Database {
     );
   }
 
+  @override
+  Future<void> deleteJob(BuildContext context, Job job) async{
+    service.deleteData(context, path: APIPath.job(userID, job.jobID));
+  }
+
+  @override
   Future<bool> checkExisting(BuildContext context, String name, bool flag) async{
     final jobs= await jobStream().first;
     final allNames= jobs.map((e) => e.name).toList();
@@ -42,6 +50,7 @@ class FirestoreDatabase implements Database {
     return false;
   }
 
+  @override
   Stream<List<Job>> jobStream()=>
     service.collectionStream(
         path: APIPath.jobs(userID),
