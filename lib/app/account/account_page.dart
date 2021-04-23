@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracker/services/Authentication.dart';
 import 'package:time_tracker/widgets/alertDialog.dart';
+import 'package:time_tracker/widgets/avatar.dart';
 
 class AccountPage extends StatelessWidget {
 
@@ -23,25 +25,45 @@ class AccountPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth= Provider.of<AuthBaseClass>(context, listen: false);
+    User user= auth.currentUser;
     return Scaffold(
       appBar: AppBar(
         title: Text("Account"),
         centerTitle: true,
         elevation: 2.0,
         actions: [
-          TextButton(
-            onPressed: ()=>confirmSignOut(context),
-            child: Text(
-              "Logout",
-              style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 1.5,
+          Padding(
+            padding: EdgeInsets.only(right: 10),
+            child: IconButton(
+              icon: Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                  size: 30.0,
+                  semanticLabel: "Logout",
+              ),
+              onPressed: ()=>confirmSignOut(context),
               ),
             ),
-          ),
         ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(130),
+          child: Column(
+            children: [
+              Avatar(
+                photoUrl: user.photoURL,
+                radius: 50.0,
+              ),
+              SizedBox(height: 10.0,),
+              if(user.displayName!=null)
+                Text(
+                  user.displayName,
+                  style: TextStyle(color: Colors.white, fontSize: 20.0),
+                ),
+              SizedBox(height: 8,),
+            ],
+          ),
+        ),
       ),
       body: _buildBody(context),
       // floatingActionButton: FloatingActionButton(
