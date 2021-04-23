@@ -10,7 +10,6 @@ class ListItemBuilder<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     if(snapshot.hasData){
       final List<T> items= snapshot.data;
       if (items.isNotEmpty) {
